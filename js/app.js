@@ -40,9 +40,19 @@ var Player = function() {
   this.goToStart();
 }
 
+
 Player.prototype.goToStart = function() {
-  this.x = this.startPos.x;
-  this.y = this.startPos.y;
+  this.goTo(this.startPos.x, this.startPos.y);
+}
+
+Player.prototype.isValidMove = function(x, y) {
+  return x >= 0 && x < cols && y > 0 && y < rows;
+}
+
+Player.prototype.goTo = function(x, y) {
+  if (!this.isValidMove(x, y)) { return; }
+  this.x = x;
+  this.y = y;
 }
 
 Player.prototype.update = function() {
@@ -54,8 +64,11 @@ Player.prototype.render = function() {
   ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
 }
 
-Player.prototype.handleInput = function (direction) {
-
+Player.prototype.handleInput = function(direction) {
+  if (direction === 'left') { this.goTo(this.x - 1, this.y) }
+  if (direction === 'right') { this.goTo(this.x + 1, this.y) }
+  if (direction === 'up') { this.goTo(this.x, this.y - 1) }
+  if (direction === 'down') { this.goTo(this.x, this.y + 1) }
 }
 
 

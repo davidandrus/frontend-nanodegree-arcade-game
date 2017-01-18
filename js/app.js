@@ -36,39 +36,66 @@ var Player = function() {
     y: rows - 1
   };
 
-  this.sprite = 'images/char-boy.png';
+  this.sprites = [
+    'images/char-boy.png',
+    'images/char-cat-girl.png',
+    'images/char-horn-girl.png',
+    'images/char-pink-girl.png',
+    'images/char-princess-girl.png'
+  ];
+
+  this.setToRandomSprite();
   this.goToStart();
 }
 
+Player.prototype = {
+  setToRandomSprite: function() {
+    var randomIndex = Math.round(Math.random() * (this.sprites.length - 1));
+    this.sprite = this.sprites[randomIndex];
+  },
 
-Player.prototype.goToStart = function() {
-  this.goTo(this.startPos.x, this.startPos.y);
-}
+  goToStart: function() {
+    this.x = this.startPos.x
+    this.y = this.startPos.y;
+  },
 
-Player.prototype.isValidMove = function(x, y) {
-  return x >= 0 && x < cols && y > 0 && y < rows;
-}
+  isValidMove: function(x, y) {
+    return x >= 0 && x < cols && y >= 0 && y < rows;
+  },
 
-Player.prototype.goTo = function(x, y) {
-  if (!this.isValidMove(x, y)) { return; }
-  this.x = x;
-  this.y = y;
-}
+  isWaterTile: function(_, y) {
+    return y === 0;
+  },
 
-Player.prototype.update = function() {
-}
+  goTo: function(x, y) {
+    if (this.isWaterTile(x, y)) {
+      this.madeItToWater();
+      return;
+    }
+    if (!this.isValidMove(x, y)) { return; }
+    this.x = x;
+    this.y = y;
+  },
 
-Player.prototype.render = function() {
-  var xPos = this.x * tileWidth;
-  var yPos = this.y * tileHeight + playerAdjustY;
-  ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
-}
+  madeItToWater: function() {
+    this.goToStart();
+  },
 
-Player.prototype.handleInput = function(direction) {
-  if (direction === 'left') { this.goTo(this.x - 1, this.y) }
-  if (direction === 'right') { this.goTo(this.x + 1, this.y) }
-  if (direction === 'up') { this.goTo(this.x, this.y - 1) }
-  if (direction === 'down') { this.goTo(this.x, this.y + 1) }
+  update: function() {
+  },
+
+  render: function() {
+    var xPos = this.x * tileWidth;
+    var yPos = this.y * tileHeight + playerAdjustY;
+    ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
+  },
+
+  handleInput: function(direction) {
+    if (direction === 'left') { this.goTo(this.x - 1, this.y) }
+    if (direction === 'right') { this.goTo(this.x + 1, this.y) }
+    if (direction === 'up') { this.goTo(this.x, this.y - 1) }
+    if (direction === 'down') { this.goTo(this.x, this.y + 1) }
+  }
 }
 
 
@@ -77,8 +104,6 @@ Player.prototype.handleInput = function(direction) {
 var allEnemies = [];
 // Place the player object in a variable called player
 var player = new Player();
-
-
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.

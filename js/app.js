@@ -1,3 +1,9 @@
+var tileWidth = 101;
+var tileHeight = 82;
+var playerAdjustY = -20;
+var rows = 6;
+var cols = 5;
+
 // Enemies our player must avoid
 var Enemy = function() {
     // Variables applied to each of our instances go here,
@@ -25,18 +31,30 @@ Enemy.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
+  this.startPos = {
+    x: Math.ceil(cols / 2) - 1,
+    y: rows - 1
+  };
 
+  this.sprite = 'images/char-boy.png';
+  this.goToStart();
+}
+
+Player.prototype.goToStart = function() {
+  this.x = this.startPos.x;
+  this.y = this.startPos.y;
 }
 
 Player.prototype.update = function() {
-
 }
 
 Player.prototype.render = function() {
-
+  var xPos = this.x * tileWidth;
+  var yPos = this.y * tileHeight + playerAdjustY;
+  ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
 }
 
-Player.prototype.handleInput = function () {
+Player.prototype.handleInput = function (direction) {
 
 }
 

@@ -14,14 +14,6 @@ function randomIntFromInterval(min,max) {
     return Math.floor(Math.random()*(max-min+1)+min);
 }
 
-function hide(node) {
-  node.style.visibility = 'hidden';
-}
-
-function show(node) {
-  node.style.visibility = 'visible';
-}
-
 // Enemies our player must avoid
 var Enemy = function() {
     // x and y values are in px since they are animated
@@ -159,18 +151,19 @@ var allEnemies = [];
 // Place the player object in a variable called player
 var player = new Player();
 
-var startButton = document.getElementById('start-button');
-
 var Game = function() {
     this.isRunning =  false;
     this.scoreElem = document.getElementById('score');
     this.heartsElem = document.getElementById('hearts');
     this.heartElem = document.querySelector('.heart');
     this.heartsElem.removeChild(this.heartElem);
+    this.startButton = document.getElementById('start-button');
+    this.startButton.addEventListener('click', this.start.bind(this));
 };
 
 Game.prototype = {
     start: function() {
+
         this.isRunning = true;
         this.score = 0;
         this.numLives = 5
@@ -180,7 +173,7 @@ Game.prototype = {
         this.clearScore();
         player.goToStart();
 
-        hide(startButton);
+        this.hideStartButton();
 
         // create enemies at a regular intrval
         this.interval = setInterval(function() {
@@ -191,9 +184,17 @@ Game.prototype = {
     end: function() {
         this.isRunning = false;
         player.hide();
-        show(startButton);
+        this.showStartButton();
         allEnemies = [];
         clearInterval(this.interval);
+    },
+
+    hideStartButton: function() {
+      this.startButton.style.visibility = 'hidden';
+    },
+
+    showStartButton: function(node) {
+      this.startButton.style.visibility = 'visible';
     },
 
     setupLivesHTML: function() {
@@ -244,8 +245,4 @@ document.addEventListener('keyup', function(e) {
     if (game.isRunning) {
         player.handleInput(allowedKeys[e.keyCode]);
     }
-});
-
-startButton.addEventListener('click', function() {
-    game.start();
 });

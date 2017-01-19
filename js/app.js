@@ -71,7 +71,7 @@ var Player = function() {
 
     this.setToRandomSprite();
     this.goToStart();
-}
+};
 
 Player.prototype = {
     setToRandomSprite: function() {
@@ -86,7 +86,7 @@ Player.prototype = {
     },
 
     goToStart: function() {
-        this.x = this.startPos.x
+        this.x = this.startPos.x;
         this.y = this.startPos.y;
     },
 
@@ -139,12 +139,12 @@ Player.prototype = {
     },
 
     handleInput: function(direction) {
-        if (direction === 'left') { this.goTo(this.x - 1, this.y) }
-        if (direction === 'right') { this.goTo(this.x + 1, this.y) }
-        if (direction === 'up') { this.goTo(this.x, this.y - 1) }
-        if (direction === 'down') { this.goTo(this.x, this.y + 1) }
+        if (direction === 'left') { this.goTo(this.x - 1, this.y); }
+        if (direction === 'right') { this.goTo(this.x + 1, this.y); }
+        if (direction === 'up') { this.goTo(this.x, this.y - 1); }
+        if (direction === 'down') { this.goTo(this.x, this.y + 1); }
     }
-}
+};
 
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
@@ -166,7 +166,7 @@ Game.prototype = {
 
         this.isRunning = true;
         this.score = 0;
-        this.numLives = 5
+        this.numLives = 5;
         this.multiplier = 1;
         this.score = 0;
         this.setupLivesHTML();
@@ -190,11 +190,11 @@ Game.prototype = {
     },
 
     hideStartButton: function() {
-      this.startButton.style.visibility = 'hidden';
+        this.startButton.style.visibility = 'hidden';
     },
 
     showStartButton: function(node) {
-      this.startButton.style.visibility = 'visible';
+        this.startButton.style.visibility = 'visible';
     },
 
     setupLivesHTML: function() {
@@ -204,7 +204,7 @@ Game.prototype = {
         }
     },
 
-    removeLife() {
+    removeLife: function() {
         this.multiplier = 1;
         this.numLives -= 1;
 
@@ -216,17 +216,17 @@ Game.prototype = {
         }
     },
 
-    clearScore() {
+    clearScore: function() {
         this.scoreElem.innerHTML = 0;
     },
 
-    addScore() {
+    addScore: function() {
         // base score is 100
         this.score = this.score + (100 * this.multiplier);
         this.scoreElem.innerHTML = this.score;
         this.multiplier += 1;
     }
-}
+};
 
 var game = new Game();
 game.end();

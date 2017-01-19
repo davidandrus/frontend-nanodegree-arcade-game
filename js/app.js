@@ -1,13 +1,13 @@
-var tileWidth = 101;
-var tileHeight = 82;
+var TILE_WIDTH = 101;
+var TILE_HEIGHT = 82;
 // adjust the sprites by this many pixels so they line up with the tile nicely
-var spriteAdjustY = -20;
+var SPRITE_ADJUST_Y = -20;
 
-var rows = 6;
-var cols = 5;
+var ROWS = 6;
+var COLS = 5;
 
 // the amount of overlap of the beetle sprite into the players tile in px
-var collisionOverlapPx = 20;
+var COLLISION_OVERLAP_PX = 20;
 
 // http://stackoverflow.com/a/7228322/1830384
 function randomIntFromInterval(min,max) {
@@ -25,9 +25,9 @@ function show(node) {
 // Enemies our player must avoid
 var Enemy = function() {
     // x and y values are in px since they are animated
-    this.x = -tileWidth ;
+    this.x = -TILE_WIDTH ;
     this.row = randomIntFromInterval(1, 3); // enemies only on row 1-3
-    this.y = this.row * tileHeight + spriteAdjustY;
+    this.y = this.row * TILE_HEIGHT + SPRITE_ADJUST_Y;
     this.speed = randomIntFromInterval(3, 5);
 
     // The image/sprite for our enemies, this uses
@@ -45,12 +45,12 @@ Enemy.prototype.update = function(dt) {
     this.x = this.x + this.speed * 100 * dt;
 
     // convert player position in tiles to px
-    var playerXPx = player.x * tileWidth;
+    var playerXPx = player.x * TILE_WIDTH;
 
     // handle collision
     if (this.row === player.y &&
-        this.x > playerXPx - tileWidth + collisionOverlapPx &&
-        this.x < playerXPx + tileWidth - collisionOverlapPx) {
+        this.x > playerXPx - TILE_WIDTH + COLLISION_OVERLAP_PX &&
+        this.x < playerXPx + TILE_WIDTH - COLLISION_OVERLAP_PX) {
         player.die();
     }
 };
@@ -64,8 +64,8 @@ Enemy.prototype.render = function() {
 var Player = function() {
     // Player x,y are in 0 indexed tile locations for example top second tile is 1, 0
     this.startPos = {
-        x: Math.ceil(cols / 2) - 1,
-        y: rows - 1
+        x: Math.ceil(COLS / 2) - 1,
+        y: ROWS - 1
     };
 
     // adding all sprites since when you die you get a new character
@@ -114,7 +114,7 @@ Player.prototype = {
     },
 
     isValidMove: function(x, y) {
-        return x >= 0 && x < cols && y >= 0 && y < rows;
+        return x >= 0 && x < COLS && y >= 0 && y < ROWS;
     },
 
     isWaterTile: function(_, y) {
@@ -141,8 +141,8 @@ Player.prototype = {
 
     render: function() {
         // convert tile to px position
-        var xPos = this.x * tileWidth;
-        var yPos = this.y * tileHeight + spriteAdjustY;
+        var xPos = this.x * TILE_WIDTH;
+        var yPos = this.y * TILE_HEIGHT + SPRITE_ADJUST_Y;
         ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
     },
 

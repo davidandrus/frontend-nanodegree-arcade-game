@@ -1,3 +1,36 @@
 body {
+    font-family: sans-serif;
     text-align: center;
+}
+
+#start-button {
+    background-color: #5169d4;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 13px;
+    margin: 10px auto 0;
+    padding: 10px 20px;
+}
+
+#hearts {
+    display: block;
+    position: absolute;
+    top: 0px;
+    right: calc(50% - 253px);
+}
+
+#score {
+    font-size: 40px;
+    position: absolute;
+    top: 60px;
+    right: calc(50% - 253px);
+}
+
+.heart {
+  display: inline-block;
+}
+
+.heart img {
+    width: 30px;
 }

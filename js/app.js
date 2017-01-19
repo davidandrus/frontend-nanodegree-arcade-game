@@ -10,6 +10,14 @@ function randomIntFromInterval(min,max) {
     return Math.floor(Math.random()*(max-min+1)+min);
 }
 
+function hide(node) {
+  node.style.visibility = 'hidden';
+}
+
+function show(node) {
+  node.style.visibility = 'visible';
+}
+
 // Enemies our player must avoid
 var Enemy = function() {
     this.x = -tileWidth ;
@@ -66,71 +74,148 @@ var Player = function() {
 
 // NOTE: player x and y are the tile not pixel relation to the canvas like Enemy
 Player.prototype = {
-  setToRandomSprite: function() {
-      var newSprite = this.sprite;
-      var randomIndex;
+    setToRandomSprite: function() {
+        var newSprite = this.sprite;
+        var randomIndex;
 
-      // if no sprite set or sprite is same as was previously
-      while (!this.sprite || this.sprite === newSprite) {
-          randomIndex = randomIntFromInterval(0, this.sprites.length - 1);
-          this.sprite = this.sprites[randomIndex];
-      }
-  },
+        // if no sprite set or sprite is same as was previously
+        while (!this.sprite || this.sprite === newSprite) {
+            randomIndex = randomIntFromInterval(0, this.sprites.length - 1);
+            this.sprite = this.sprites[randomIndex];
+        }
+    },
 
-  goToStart: function() {
-      this.x = this.startPos.x
-      this.y = this.startPos.y;
-  },
+    goToStart: function() {
+        this.x = this.startPos.x
+        this.y = this.startPos.y;
+    },
 
-  die: function() {
-      this.goToStart();
-      this.setToRandomSprite();
-  },
+    hide: function() {
+        this.x = -10;
+        this.y = -10;
+        console.log('shoudl hide')
+    },
 
-  isValidMove: function(x, y) {
-      return x >= 0 && x < cols && y >= 0 && y < rows;
-  },
+    die: function() {
+        this.goToStart();
+        this.setToRandomSprite();
+        // order matters here this has to be last
+        game.removeLife();
+    },
 
-  isWaterTile: function(_, y) {
-      return y === 0;
-  },
+    isValidMove: function(x, y) {
+        return x >= 0 && x < cols && y >= 0 && y < rows;
+    },
 
-  goTo: function(x, y) {
-      if (this.isWaterTile(x, y)) {
-          this.madeItToWater();
-          return;
-      }
-      if (!this.isValidMove(x, y)) { return; }
-      this.x = x;
-      this.y = y;
-  },
+    isWaterTile: function(_, y) {
+        return y === 0;
+    },
 
-  madeItToWater: function() {
-    this.goToStart();
-  },
+    goTo: function(x, y) {
+        if (this.isWaterTile(x, y)) {
+            this.madeItToWater();
+            return;
+        }
+        if (!this.isValidMove(x, y)) { return; }
+        this.x = x;
+        this.y = y;
+    },
 
-  // necessary for game engine
-  update: function() {},
+    madeItToWater: function() {
+        game.addScore();
+        this.goToStart();
+    },
 
-  render: function() {
-      var xPos = this.x * tileWidth;
-      var yPos = this.y * tileHeight + spriteAdjustY;
-      ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
-  },
+    // necessary for game engine
+    update: function() {},
 
-  handleInput: function(direction) {
-      if (direction === 'left') { this.goTo(this.x - 1, this.y) }
-      if (direction === 'right') { this.goTo(this.x + 1, this.y) }
-      if (direction === 'up') { this.goTo(this.x, this.y - 1) }
-      if (direction === 'down') { this.goTo(this.x, this.y + 1) }
-  }
+    render: function() {
+        var xPos = this.x * tileWidth;
+        var yPos = this.y * tileHeight + spriteAdjustY;
+        ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
+    },
+
+    handleInput: function(direction) {
+        if (direction === 'left') { this.goTo(this.x - 1, this.y) }
+        if (direction === 'right') { this.goTo(this.x + 1, this.y) }
+        if (direction === 'up') { this.goTo(this.x, this.y - 1) }
+        if (direction === 'down') { this.goTo(this.x, this.y + 1) }
+    }
 }
 
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
-
 // Place the player object in a variable called player
 var player = new Player();
+
+var startButton = document.getElementById('start-button');
+
+var Game = function() {
+    this.isRunning =  false;
+    this.scoreElem = document.getElementById('score');
+
+    this.heartsElem = document.getElementById('hearts');
+    this.heartElem = document.querySelector('.heart');
+    this.heartsElem.removeChild(this.heartElem);
+};
+
+Game.prototype = {
+    start: function() {
+        this.isRunning = true;
+        this.score = 0;
+        this.numLives = 5
+        this.multiplier = 1;
+        this.score = 0;
+        this.setupLivesHTML();
+        this.clearScore();
+        player.goToStart();
+
+        hide(startButton);
+        allEnemies = [];
+
+        // create enemies at a regular intrval
+        this.interval = setInterval(function() {
+            allEnemies.push(new Enemy());
+        }, 700);
+    },
+
+    end: function() {
+        this.isRunning = false;
+        player.hide();
+        show(startButton);
+        allEnemies = [];
+        clearInterval(this.interval);
+    },
+
+    setupLivesHTML: function() {
+        for (var i = 0; i < this.numLives; i += 1) {
+          this.heartsElem.appendChild(this.heartElem.cloneNode(true));
+        }
+    },
+
+    removeLife() {
+        this.multiplier = 1;
+        this.numLives -= 1;
+        this.heartsElem.removeChild(this.heartsElem.querySelector('.heart'));
+
+        if (this.numLives === 0) {
+            this.end();
+        }
+    },
+
+    clearScore() {
+        this.scoreElem.innerHTML = 0;
+    },
+
+    addScore() {
+        this.score = this.score + (100 * this.multiplier);
+        this.scoreElem.innerHTML = this.score;
+        this.multiplier += 1;
+    }
+}
+
+var game = new Game();
+game.end();
 
 // handle keypresses, moves player
 document.addEventListener('keyup', function(e) {
@@ -141,11 +226,11 @@ document.addEventListener('keyup', function(e) {
         40: 'down'
     };
 
-    player.handleInput(allowedKeys[e.keyCode]);
+    if (game.isRunning) {
+        player.handleInput(allowedKeys[e.keyCode]);
+    }
 });
 
-// Start Game
-// create enemies at a regular intrval
-setInterval(function() {
-    allEnemies.push(new Enemy());
-}, 700);
+startButton.addEventListener('click', function() {
+  game.start();
+});

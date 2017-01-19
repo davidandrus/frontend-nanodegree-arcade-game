@@ -17,9 +17,6 @@ var Enemy = function() {
     this.row = randomIntFromInterval(1, 3); // enemies only on row 1-3
     this.y = this.row * tileHeight + spriteAdjustY;
     this.speed = randomIntFromInterval(3, 5);
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
-
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
@@ -27,18 +24,19 @@ var Enemy = function() {
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
+// You should multiply any movement by the dt parameter
+// which will ensure the game runs at the same speed for
+// all computers.
 Enemy.prototype.update = function(dt) {
-  this.x = this.x + this.speed * 100 * dt;
-  var playerXPx = player.x * tileWidth;
-  // handle collision
-  if (this.row === player.y &&
-      this.x > playerXPx - tileWidth + collisionOverlapPx &&
-      this.x < playerXPx + tileWidth - collisionOverlapPx) {
-      player.die();
-  }
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
+    this.x = this.x + this.speed * 100 * dt;
+    var playerXPx = player.x * tileWidth;
+
+    // handle collision
+    if (this.row === player.y &&
+        this.x > playerXPx - tileWidth + collisionOverlapPx &&
+        this.x < playerXPx + tileWidth - collisionOverlapPx) {
+        player.die();
+    }
 };
 
 // Draw the enemy on the screen, required method for game
@@ -46,101 +44,95 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
+
 var Player = function() {
-  this.startPos = {
-    x: Math.ceil(cols / 2) - 1,
-    y: rows - 1
-  };
+  // Player x,y are in 0 indexed tile locations
+    this.startPos = {
+        x: Math.ceil(cols / 2) - 1,
+        y: rows - 1
+    };
 
-  this.sprites = [
-    'images/char-boy.png',
-    'images/char-cat-girl.png',
-    'images/char-horn-girl.png',
-    'images/char-pink-girl.png',
-    'images/char-princess-girl.png'
-  ];
+    this.sprites = [
+      'images/char-boy.png',
+      'images/char-cat-girl.png',
+      'images/char-horn-girl.png',
+      'images/char-pink-girl.png',
+      'images/char-princess-girl.png'
+    ];
 
-  this.setToRandomSprite();
-  this.goToStart();
+    this.setToRandomSprite();
+    this.goToStart();
 }
 
 // NOTE: player x and y are the tile not pixel relation to the canvas like Enemy
 Player.prototype = {
   setToRandomSprite: function() {
-    var newSprite = this.sprite;
-    var randomIndex;
-    // if no sprite set or sprite is same as was previously
-    while (!this.sprite || this.sprite === newSprite) {
-      console.log('whiling');
-      randomIndex = randomIntFromInterval(0, this.sprites.length - 1);
-      this.sprite = this.sprites[randomIndex];
-    }
+      var newSprite = this.sprite;
+      var randomIndex;
+
+      // if no sprite set or sprite is same as was previously
+      while (!this.sprite || this.sprite === newSprite) {
+          randomIndex = randomIntFromInterval(0, this.sprites.length - 1);
+          this.sprite = this.sprites[randomIndex];
+      }
   },
 
   goToStart: function() {
-    this.x = this.startPos.x
-    this.y = this.startPos.y;
+      this.x = this.startPos.x
+      this.y = this.startPos.y;
   },
 
   die: function() {
-    this.goToStart();
-    this.setToRandomSprite();
+      this.goToStart();
+      this.setToRandomSprite();
   },
 
   isValidMove: function(x, y) {
-    return x >= 0 && x < cols && y >= 0 && y < rows;
+      return x >= 0 && x < cols && y >= 0 && y < rows;
   },
 
   isWaterTile: function(_, y) {
-    return y === 0;
+      return y === 0;
   },
 
   goTo: function(x, y) {
-    if (this.isWaterTile(x, y)) {
-      this.madeItToWater();
-      return;
-    }
-    if (!this.isValidMove(x, y)) { return; }
-    this.x = x;
-    this.y = y;
+      if (this.isWaterTile(x, y)) {
+          this.madeItToWater();
+          return;
+      }
+      if (!this.isValidMove(x, y)) { return; }
+      this.x = x;
+      this.y = y;
   },
 
   madeItToWater: function() {
     this.goToStart();
   },
 
-  update: function() {
-  },
+  // necessary for game engine
+  update: function() {},
 
   render: function() {
-    var xPos = this.x * tileWidth;
-    var yPos = this.y * tileHeight + spriteAdjustY;
-    ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
+      var xPos = this.x * tileWidth;
+      var yPos = this.y * tileHeight + spriteAdjustY;
+      ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
   },
 
   handleInput: function(direction) {
-    if (direction === 'left') { this.goTo(this.x - 1, this.y) }
-    if (direction === 'right') { this.goTo(this.x + 1, this.y) }
-    if (direction === 'up') { this.goTo(this.x, this.y - 1) }
-    if (direction === 'down') { this.goTo(this.x, this.y + 1) }
+      if (direction === 'left') { this.goTo(this.x - 1, this.y) }
+      if (direction === 'right') { this.goTo(this.x + 1, this.y) }
+      if (direction === 'up') { this.goTo(this.x, this.y - 1) }
+      if (direction === 'down') { this.goTo(this.x, this.y + 1) }
   }
 }
 
-
-// Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
-setInterval(function() {
-  allEnemies.push(new Enemy());
-}, 700);
+
 // Place the player object in a variable called player
 var player = new Player();
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+// handle keypresses, moves player
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
@@ -151,3 +143,9 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+
+// Start Game
+// create enemies at a regular intrval
+setInterval(function() {
+    allEnemies.push(new Enemy());
+}, 700);

@@ -1,5 +1,5 @@
 var TILE_WIDTH = 101;
-var TILE_HEIGHT = 82;
+var TILE_HEIGHT = 83;
 // adjust the sprites by this many pixels so they line up with the tile nicely
 var SPRITE_ADJUST_Y = -20;
 

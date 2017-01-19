@@ -1,8 +1,12 @@
 var tileWidth = 101;
 var tileHeight = 82;
+// adjust the sprites by this many pixels so they line up with the tile nicely
 var spriteAdjustY = -20;
+
 var rows = 6;
 var cols = 5;
+
+// the amount of overlap of the beetle sprite into the players tile in px
 var collisionOverlapPx = 20;
 
 // http://stackoverflow.com/a/7228322/1830384
@@ -20,11 +24,12 @@ function show(node) {
 
 // Enemies our player must avoid
 var Enemy = function() {
+    // x and y values are in px since they are animated
     this.x = -tileWidth ;
-    this.id = Date.now();
-    this.row = randomIntFromInterval(1, 3); // enemies only on row 1-3
     this.y = this.row * tileHeight + spriteAdjustY;
+    this.row = randomIntFromInterval(1, 3); // enemies only on row 1-3
     this.speed = randomIntFromInterval(3, 5);
+
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
@@ -36,7 +41,10 @@ var Enemy = function() {
 // which will ensure the game runs at the same speed for
 // all computers.
 Enemy.prototype.update = function(dt) {
+    // works out to of change of about 4.8 - 8px per tick
     this.x = this.x + this.speed * 100 * dt;
+
+    // convert player position in tiles to px
     var playerXPx = player.x * tileWidth;
 
     // handle collision
@@ -54,12 +62,13 @@ Enemy.prototype.render = function() {
 
 
 var Player = function() {
-  // Player x,y are in 0 indexed tile locations
+    // Player x,y are in 0 indexed tile locations for example top second tile is 1, 0
     this.startPos = {
         x: Math.ceil(cols / 2) - 1,
         y: rows - 1
     };
 
+    // adding all sprites since when you die you get a new character
     this.sprites = [
       'images/char-boy.png',
       'images/char-cat-girl.png',
@@ -72,7 +81,6 @@ var Player = function() {
     this.goToStart();
 }
 
-// NOTE: player x and y are the tile not pixel relation to the canvas like Enemy
 Player.prototype = {
     setToRandomSprite: function() {
         var newSprite = this.sprite;
@@ -91,15 +99,17 @@ Player.prototype = {
     },
 
     hide: function() {
+
+        // hide the player off canvas
         this.x = -10;
         this.y = -10;
-        console.log('shoudl hide')
     },
 
     die: function() {
         this.goToStart();
         this.setToRandomSprite();
-        // order matters here this has to be last
+
+        // order matters here this has to be last since game will hide the player when all lives lost
         game.removeLife();
     },
 
@@ -130,6 +140,7 @@ Player.prototype = {
     update: function() {},
 
     render: function() {
+        // convert tile to px position
         var xPos = this.x * tileWidth;
         var yPos = this.y * tileHeight + spriteAdjustY;
         ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
@@ -153,7 +164,6 @@ var startButton = document.getElementById('start-button');
 var Game = function() {
     this.isRunning =  false;
     this.scoreElem = document.getElementById('score');
-
     this.heartsElem = document.getElementById('hearts');
     this.heartElem = document.querySelector('.heart');
     this.heartsElem.removeChild(this.heartElem);
@@ -171,7 +181,6 @@ Game.prototype = {
         player.goToStart();
 
         hide(startButton);
-        allEnemies = [];
 
         // create enemies at a regular intrval
         this.interval = setInterval(function() {
@@ -188,6 +197,7 @@ Game.prototype = {
     },
 
     setupLivesHTML: function() {
+        // create number of hearts equal to number of lives
         for (var i = 0; i < this.numLives; i += 1) {
           this.heartsElem.appendChild(this.heartElem.cloneNode(true));
         }
@@ -196,6 +206,8 @@ Game.prototype = {
     removeLife() {
         this.multiplier = 1;
         this.numLives -= 1;
+
+        // remove heart from lives meter
         this.heartsElem.removeChild(this.heartsElem.querySelector('.heart'));
 
         if (this.numLives === 0) {
@@ -208,6 +220,7 @@ Game.prototype = {
     },
 
     addScore() {
+        // base score is 100
         this.score = this.score + (100 * this.multiplier);
         this.scoreElem.innerHTML = this.score;
         this.multiplier += 1;
@@ -226,11 +239,13 @@ document.addEventListener('keyup', function(e) {
         40: 'down'
     };
 
+    // don't do anything until game is running or else you could move character
+    // around the screen before game starts
     if (game.isRunning) {
         player.handleInput(allowedKeys[e.keyCode]);
     }
 });
 
 startButton.addEventListener('click', function() {
-  game.start();
+    game.start();
 });

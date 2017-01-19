@@ -26,8 +26,8 @@ function show(node) {
 var Enemy = function() {
     // x and y values are in px since they are animated
     this.x = -tileWidth ;
-    this.y = this.row * tileHeight + spriteAdjustY;
     this.row = randomIntFromInterval(1, 3); // enemies only on row 1-3
+    this.y = this.row * tileHeight + spriteAdjustY;
     this.speed = randomIntFromInterval(3, 5);
 
     // The image/sprite for our enemies, this uses

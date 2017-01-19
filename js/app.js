@@ -1,11 +1,22 @@
 var tileWidth = 101;
 var tileHeight = 82;
-var playerAdjustY = -20;
+var spriteAdjustY = -20;
 var rows = 6;
 var cols = 5;
+var collisionOverlapPx = 20;
+
+// http://stackoverflow.com/a/7228322/1830384
+function randomIntFromInterval(min,max) {
+    return Math.floor(Math.random()*(max-min+1)+min);
+}
 
 // Enemies our player must avoid
 var Enemy = function() {
+    this.x = -tileWidth ;
+    this.id = Date.now();
+    this.row = randomIntFromInterval(1, 3); // enemies only on row 1-3
+    this.y = this.row * tileHeight + spriteAdjustY;
+    this.speed = randomIntFromInterval(3, 5);
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
@@ -17,6 +28,14 @@ var Enemy = function() {
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
+  this.x = this.x + this.speed * 100 * dt;
+  var playerXPx = player.x * tileWidth;
+  // handle collision
+  if (this.row === player.y &&
+      this.x > playerXPx - tileWidth + collisionOverlapPx &&
+      this.x < playerXPx + tileWidth - collisionOverlapPx) {
+      player.die();
+  }
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
@@ -48,15 +67,27 @@ var Player = function() {
   this.goToStart();
 }
 
+// NOTE: player x and y are the tile not pixel relation to the canvas like Enemy
 Player.prototype = {
   setToRandomSprite: function() {
-    var randomIndex = Math.round(Math.random() * (this.sprites.length - 1));
-    this.sprite = this.sprites[randomIndex];
+    var newSprite = this.sprite;
+    var randomIndex;
+    // if no sprite set or sprite is same as was previously
+    while (!this.sprite || this.sprite === newSprite) {
+      console.log('whiling');
+      randomIndex = randomIntFromInterval(0, this.sprites.length - 1);
+      this.sprite = this.sprites[randomIndex];
+    }
   },
 
   goToStart: function() {
     this.x = this.startPos.x
     this.y = this.startPos.y;
+  },
+
+  die: function() {
+    this.goToStart();
+    this.setToRandomSprite();
   },
 
   isValidMove: function(x, y) {
@@ -86,7 +117,7 @@ Player.prototype = {
 
   render: function() {
     var xPos = this.x * tileWidth;
-    var yPos = this.y * tileHeight + playerAdjustY;
+    var yPos = this.y * tileHeight + spriteAdjustY;
     ctx.drawImage(Resources.get(this.sprite), xPos, yPos);
   },
 
@@ -102,6 +133,9 @@ Player.prototype = {
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
 var allEnemies = [];
+setInterval(function() {
+  allEnemies.push(new Enemy());
+}, 700);
 // Place the player object in a variable called player
 var player = new Player();
 
